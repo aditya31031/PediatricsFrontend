@@ -157,13 +157,24 @@ const Header = () => {
                                 </Link>
                             )}
 
-                            {/* USER DROPDOWN */}
-                            <div className="user-menu-container" ref={userMenuRef}>
+                            {/* Desktop: Welcome Text & Logout */}
+                            <div className="desktop-user-actions mobile-hidden">
+                                <Link to="/profile" className="user-welcome" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <User size={18} className="icon-mr" />
+                                    <span>{user.name}</span>
+                                </Link>
+                                <button onClick={handleLogout} className="btn btn-outline btn-sm btn-box">
+                                    <LogOut size={16} />
+                                    Logout
+                                </button>
+                            </div>
+
+                            {/* Mobile: User Dropdown */}
+                            <div className="user-menu-container desktop-hidden" ref={userMenuRef}>
                                 <button className="btn-icon-header user-menu-btn" onClick={() => setShowUserDropdown(!showUserDropdown)}>
                                     <div className="user-avatar-small">
                                         <User size={18} />
                                     </div>
-                                    <span className="user-name-header mobile-hidden">{user.name.split(' ')[0]}</span>
                                 </button>
 
                                 {showUserDropdown && (
