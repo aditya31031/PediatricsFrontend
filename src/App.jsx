@@ -39,10 +39,13 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="app-container">
           <Toaster position="top-center" />
           <Header />
