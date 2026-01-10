@@ -12,7 +12,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post('https://pediatricsbackend.onrender.com/api/auth/forgot-password', { email });
+            const res = await axios.post('https://pediatricsbackend-4hii.onrender.com/api/auth/forgot-password', { email });
             toast.success(res.data.data);
             setEmail('');
         } catch (err) {

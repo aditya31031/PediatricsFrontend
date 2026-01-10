@@ -22,7 +22,7 @@ const Header = () => {
         if (!user) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/notifications', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/notifications', {
                 headers: { 'x-auth-token': token }
             });
             if (res.ok) {
@@ -39,7 +39,7 @@ const Header = () => {
     const markAsRead = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`https://pediatricsbackend.onrender.com/api/notifications/${id}`, {
+            await fetch(`https://pediatricsbackend-4hii.onrender.com/api/notifications/${id}`, {
                 method: 'PUT',
                 headers: { 'x-auth-token': token }
             });
@@ -151,7 +151,7 @@ const Header = () => {
                             </div>
 
 
-                            
+
                             {user.role !== 'admin' && (
                                 <Link to="/dashboard" className="btn btn-outline btn-sm btn-box mobile-booking-btn">
                                     <Calendar size={16} />

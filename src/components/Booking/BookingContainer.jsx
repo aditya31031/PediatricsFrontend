@@ -41,7 +41,7 @@ const BookingContainer = () => {
 
     const fetchBookedSlots = async (date) => {
         try {
-            const res = await fetch(`https://pediatricsbackend.onrender.com/api/appointments?date=${date}`);
+            const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/appointments?date=${date}`);
             const data = await res.json();
             const times = data.map(app => app.time);
             setBookedSlots(times);
@@ -71,7 +71,7 @@ const BookingContainer = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/appointments', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/appointments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

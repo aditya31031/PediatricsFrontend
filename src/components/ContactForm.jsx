@@ -12,7 +12,7 @@ const ContactForm = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/reviews', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

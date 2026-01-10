@@ -34,7 +34,7 @@ const Dashboard = () => {
     const fetchAppointments = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/appointments/my-appointments', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/appointments/my-appointments', {
                 headers: { 'x-auth-token': token }
             });
             const data = await res.json();
@@ -53,7 +53,7 @@ const Dashboard = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://pediatricsbackend.onrender.com/api/appointments/${id}`, {
+            const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/appointments/${id}`, {
                 method: 'DELETE',
                 headers: { 'x-auth-token': token }
             });

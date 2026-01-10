@@ -12,7 +12,7 @@ const Notifications = () => {
         const fetchNotifications = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('https://pediatricsbackend.onrender.com/api/notifications', {
+                const res = await axios.get('https://pediatricsbackend-4hii.onrender.com/api/notifications', {
                     headers: { 'x-auth-token': token }
                 });
                 setNotifications(res.data);
@@ -29,7 +29,7 @@ const Notifications = () => {
     const markAsRead = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`https://pediatricsbackend.onrender.com/api/notifications/${id}/read`, {}, {
+            await axios.put(`https://pediatricsbackend-4hii.onrender.com/api/notifications/${id}/read`, {}, {
                 headers: { 'x-auth-token': token }
             });
             // Update local state

@@ -49,7 +49,7 @@ const AdminDashboard = () => {
     const fetchAllAppointments = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/appointments/all', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/appointments/all', {
                 headers: { 'x-auth-token': token }
             });
             if (res.ok) {
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         if (!selectedAppt) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://pediatricsbackend.onrender.com/api/appointments/${selectedAppt._id}`, {
+            const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/appointments/${selectedAppt._id}`, {
                 method: 'DELETE',
                 headers: { 'x-auth-token': token }
             });
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
         if (!selectedAppt) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://pediatricsbackend.onrender.com/api/appointments/${selectedAppt._id}`, {
+            const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/appointments/${selectedAppt._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

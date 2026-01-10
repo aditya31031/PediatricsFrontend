@@ -17,7 +17,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const res = await axios.put(`https://pediatricsbackend.onrender.com/api/auth/reset-password/${resetToken}`, { password });
+            const res = await axios.put(`https://pediatricsbackend-4hii.onrender.com/api/auth/reset-password/${resetToken}`, { password });
             if (res.data.success) {
                 toast.success('Password updated successfully!');
                 navigate('/login');

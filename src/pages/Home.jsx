@@ -72,7 +72,7 @@ const Home = () => {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const res = await fetch('https://pediatricsbackend.onrender.com/api/reviews');
+                const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/reviews');
                 const data = await res.json();
                 setRealReviews(data);
             } catch (err) {

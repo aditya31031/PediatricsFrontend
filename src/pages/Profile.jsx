@@ -93,7 +93,7 @@ const Profile = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.put('https://pediatricsbackend.onrender.com/api/auth/update-profile', profileData, {
+            const res = await axios.put('https://pediatricsbackend-4hii.onrender.com/api/auth/update-profile', profileData, {
                 headers: { 'x-auth-token': token }
             });
             updateUser(res.data.user); // Update Context and LocalStorage
@@ -111,7 +111,7 @@ const Profile = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.put('https://pediatricsbackend.onrender.com/api/auth/change-password', {
+            await axios.put('https://pediatricsbackend-4hii.onrender.com/api/auth/change-password', {
                 currentPassword: passwordData.currentPassword,
                 newPassword: passwordData.newPassword
             }, {
@@ -138,7 +138,7 @@ const Profile = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('https://pediatricsbackend.onrender.com/api/auth/add-child', childData, {
+            const res = await axios.post('https://pediatricsbackend-4hii.onrender.com/api/auth/add-child', childData, {
                 headers: { 'x-auth-token': token }
             });
             updateUser(res.data); // Update AuthContext
@@ -156,7 +156,7 @@ const Profile = () => {
         if (!window.confirm('Are you sure you want to remove this profile?')) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.delete(`https://pediatricsbackend.onrender.com/api/auth/delete-child/${id}`, {
+            const res = await axios.delete(`https://pediatricsbackend-4hii.onrender.com/api/auth/delete-child/${id}`, {
                 headers: { 'x-auth-token': token }
             });
             updateUser(res.data); // Update AuthContext
