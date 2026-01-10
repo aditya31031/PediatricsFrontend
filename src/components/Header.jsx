@@ -97,7 +97,7 @@ const Header = () => {
                             <Stethoscope size={24} color="white" />
                         </div>
                         <div className="brand-text">
-                            <h1>Dr. Sai Manohar</h1>
+                            <h1>Dr. Sai Manohars</h1>
                             <p>
                                 Pediatrician Clinic
                                 {user && user.role === 'admin' && <span className="admin-badge-header">Doctor Panel</span>}
