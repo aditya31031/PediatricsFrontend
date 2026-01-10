@@ -362,68 +362,118 @@
 }
 
 /* RESPONSIVE STYLES */
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: row;
-        /* Keep row */
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
-    }
+/* RESPONSIVE UTILITIES & MOBILE FIRST STYLES */
 
-    .brand-text p {
-        display: none;
-    }
+/* Default (Mobile) State */
+.desktop-user-actions {
+    display: none;
+}
 
-    .brand-text h1 {
-        font-size: 1rem;
-    }
+.desktop-hidden {
+    /* Visible on mobile */
+}
 
-    .nav-menu {
-        gap: 0.75rem;
-    }
+.mobile-hidden {
+    display: none !important;
+}
 
-    .user-welcome {
-        display: none;
-    }
+/* Mobile Layout Adjustments */
+.header-content {
+    flex-direction: row;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+}
 
-    .mobile-hidden {
-        display: none !important;
-    }
+.brand-text p,
+.user-welcome {
+    display: none;
+}
 
-    .user-menu-btn {
-        padding: 0;
-        border: none;
-    }
+.brand-text h1 {
+    font-size: 1rem;
+}
 
-    .brand-text p {
-        display: none;
-    }
+.nav-menu {
+    gap: 0.75rem;
+}
 
-    /* Make buttons smaller on mobile */
-    .nav-menu .btn {
-        padding: 0.5rem;
-        font-size: 0;
-        /* Hide text */
-    }
+.user-menu-btn {
+    padding: 0;
+    border: none;
+}
 
-    .nav-menu .btn svg {
-        margin-right: 0;
-    }
+/* Compact buttons on mobile */
+.nav-menu .btn {
+    padding: 0.5rem;
+    font-size: 0;
+    /* Hide text */
+}
 
-    /* Except the notification bell which is already an icon button */
-    .btn-icon-header {
-        padding: 0.25rem;
-    }
+.nav-menu .btn svg {
+    margin-right: 0;
+}
+
+.btn-icon-header {
+    padding: 0.25rem;
 }
 
 
-@media (min-width: 769px) {
-    .desktop-hidden {
-        display: none !important;
+/* DESKTOP OVERRIDES (min-width: 768px) */
+@media (min-width: 768px) {
+    .header-content {
+        padding: 0.6rem 0;
+        gap: 0;
+        /* Let justify-between handle it */
+    }
+
+    .nav-menu {
+        gap: 1.5rem;
+    }
+
+    .brand-text p {
+        display: flex;
+    }
+
+    .brand-text h1 {
+        font-size: 1.25rem;
+    }
+
+    .user-welcome {
+        display: flex;
     }
 
     .desktop-user-actions {
         display: flex;
         align-items: center;
+    }
+
+    .desktop-hidden {
+        display: none !important;
+    }
+
+    .mobile-hidden {
+        display: inline-flex !important;
+        /* Restore flex buttons */
+    }
+
+    /* Specific check for book-now button if it has btn-primary */
+    .btn-primary.mobile-hidden {
+        display: inline-flex !important;
+    }
+
+    .nav-menu .btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+        /* Restore text size */
+    }
+
+    .nav-menu .btn svg {
+        margin-right: 0.5rem;
+        /* Restore icon spacing */
+    }
+
+    .user-menu-btn {
+        padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+        border: 1px solid transparent;
     }
 }
