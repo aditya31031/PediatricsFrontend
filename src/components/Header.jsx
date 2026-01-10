@@ -150,6 +150,8 @@ const Header = () => {
                                 )}
                             </div>
 
+
+                            
                             {user.role !== 'admin' && (
                                 <Link to="/dashboard" className="btn btn-outline btn-sm btn-box mobile-booking-btn">
                                     <Calendar size={16} />
