@@ -18,14 +18,23 @@ export const AuthProvider = ({ children }) => {
                     if (savedUser) setUser(savedUser);
 
                     // Then verify with server for fresh data
-                    const res = await fetch('https://pediatricsbackend.onrender.com/api/auth/me', {
+                    // Add timestamp to prevent caching
+                    const res = await fetch(`https://pediatricsbackend.onrender.com/api/auth/me?t=${new Date().getTime()}`, {
                         headers: { 'x-auth-token': token }
                     });
 
                     if (res.ok) {
                         const data = await res.json();
-                        setUser(data);
-                        localStorage.setItem('user', JSON.stringify(data)); // Sync storage
+                        // Only update if data is different or if it was the initial load
+                        if (JSON.stringify(data) !== JSON.stringify(savedUser)) {
+                            setUser(data);
+                            localStorage.setItem('user', JSON.stringify(data));
+                            // Only show toast if data actually changed significantly (avoid spam)
+                            // But for now, let's log it to verify
+                            console.log("Profile synced with server");
+                        } else {
+                            setUser(data); // Ensure state is consistency
+                        }
                     } else {
                         // If token invalid, clear everything
                         localStorage.removeItem('token');
