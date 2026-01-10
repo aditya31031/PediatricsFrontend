@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
                     // Then verify with server for fresh data
                     // Add timestamp to prevent caching
-                    const res = await fetch(`https://pediatricsbackend.onrender.com/api/auth/me?t=${new Date().getTime()}`, {
+                    const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/auth/me?t=${new Date().getTime()}`, {
                         headers: { 'x-auth-token': token }
                     });
 
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/auth/login', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.comr.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, phone) => {
         try {
-            const res = await fetch('https://pediatricsbackend.onrender.com/api/auth/register', {
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, phone }),

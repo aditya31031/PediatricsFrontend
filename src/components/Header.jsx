@@ -55,7 +55,7 @@ const Header = () => {
         if (user) {
             fetchNotifications();
 
-            const socket = io('https://pediatricsbackend.onrender.com');
+            const socket = io('https://pediatricsbackend-4hii.onrender.com');
             socket.on(`notification:${user.id}`, (newNotif) => {
                 setNotifications(prev => [newNotif, ...prev]);
                 setUnreadCount(prev => prev + 1);
