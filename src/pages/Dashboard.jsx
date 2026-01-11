@@ -16,6 +16,10 @@ const Dashboard = () => {
     const [selectedChildIndex, setSelectedChildIndex] = useState(0);
     const navigate = useNavigate();
 
+    // Reminder State
+    const [remindedApps, setRemindedApps] = useState(new Set());
+    const [activeAlert, setActiveAlert] = useState(null);
+
     const children = user?.children || [];
     const selectedChild = children[selectedChildIndex];
 
@@ -30,7 +34,47 @@ const Dashboard = () => {
         } else if (user) {
             fetchAppointments();
         }
-    }, [user, loading, navigate]);
+
+        const interval = setInterval(checkReminders, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [user, loading, navigate, appointments]);
+
+    const checkReminders = () => {
+        if (!appointments || appointments.length === 0) return;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        // Find upcoming appointment today
+        const upcoming = appointments.find(app =>
+            app.status === 'booked' &&
+            app.date === todayStr &&
+            !remindedApps.has(app._id)
+        );
+
+        if (upcoming) {
+            const [h, m] = upcoming.time.split(':');
+            const appTime = new Date();
+            appTime.setHours(parseInt(h), parseInt(m), 0, 0);
+
+            const diff = (appTime - now) / (1000 * 60); // Difference in minutes
+
+            // Trigger if within 20 mins AND not passed
+            if (diff > 0 && diff <= 20) {
+                setActiveAlert({
+                    id: upcoming._id,
+                    time: formatTime(upcoming.time),
+                    patient: upcoming.patientName
+                });
+                setRemindedApps(prev => new Set(prev).add(upcoming._id));
+
+                // Also show browser notification if supported/allowed (optional enhancement)
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("Appointment Reminder", { body: `Your appointment is in ${Math.ceil(diff)} minutes!` });
+                }
+            }
+        }
+    };
 
     const fetchAppointments = async () => {
         try {
@@ -164,6 +208,34 @@ const Dashboard = () => {
             </Link>
 
             <div className="dashboard-header">
+                {/* REMINDER ALERT BOX */}
+                {activeAlert && (
+                    <div className="reminder-alert-box fade-in-up" style={{
+                        background: '#fff7ed', borderLeft: '4px solid #f97316',
+                        padding: '1rem', marginBottom: '1.5rem', borderRadius: '0.5rem',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div style={{ background: '#ffedd5', padding: '0.5rem', borderRadius: '50%', color: '#ea580c' }}>
+                                <Bell size={24} />
+                            </div>
+                            <div>
+                                <h4 style={{ margin: 0, color: '#9a3412' }}>Upcoming Appointment</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#c2410c' }}>
+                                    Your visit for <strong>{activeAlert.patient}</strong> is at <strong>{activeAlert.time}</strong>.(~20 mins)
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setActiveAlert(null)}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9a3412' }}
+                        >
+                            <XCircle size={20} />
+                        </button>
+                    </div>
+                )}
+
                 <div className="header-actions">
                     <h2>Parent Dashboard</h2>
                     <Link to="/notifications" className="btn-icon-circle">
@@ -345,9 +417,9 @@ const Dashboard = () => {
             </div>
 
             {/* PAST & COMPLETED HISTORY */}
-            <div className="appointments-section history-section" style={{ marginTop: '3rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3><Clock size={20} /> Visit History</h3>
+            <div className="appointments-section history-section" style={{ marginTop: '4rem', borderTop: '1px solid #e2e8f0', paddingTop: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h3 style={{ margin: 0 }}><Clock size={20} /> Visit History</h3>
                     <select
                         className="form-select-sm"
                         value={historyFilter}
@@ -369,26 +441,23 @@ const Dashboard = () => {
                     </select>
                 </div>
 
-                <div className="history-grid">
+                <div className="history-list">
                     {getFilteredHistory().length === 0 ? <p className="text-muted">No past visits found.</p> :
                         getFilteredHistory().map(app => (
-                            <div key={app._id} className="appointment-card medium-card">
-                                <div className="card-header" style={{ background: app.status === 'completed' ? '#f0fdf4' : '#f8fafc', padding: '0.75rem 1rem' }}>
-                                    <div className="card-date-strip">
-                                        <Calendar size={14} color="#166534" />
-                                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{app.date}</span>
-                                    </div>
-                                    <span className="scrolling-name" style={{ fontSize: '0.8rem', color: '#64748b' }}>{formatTime(app.time)}</span>
+                            <div key={app._id} className="history-item-row fade-in-up">
+                                <div className="history-date-box">
+                                    <span className="h-day">{new Date(app.date).getDate()}</span>
+                                    <span className="h-month">{new Date(app.date).toLocaleString('default', { month: 'short' })}</span>
                                 </div>
-
-                                <div className="card-body">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                        <span className="patient-name" style={{ fontSize: '1rem' }}>{app.patientName}</span>
-                                        <span className="category-badge">{app.category}</span>
-                                    </div>
-                                    <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        {app.status === 'completed' ? <span style={{ color: '#16a34a', fontWeight: '500' }}>Visited ✅</span> : <span>{app.status}</span>}
-                                    </div>
+                                <div className="history-info">
+                                    <div className="h-patient">{app.patientName}</div>
+                                    <div className="h-meta">{formatTime(app.time)} • {app.category}</div>
+                                </div>
+                                <div className="history-status">
+                                    {app.status === 'completed' ?
+                                        <span className="status-pill success">Visited <Activity size={12} /></span> :
+                                        <span className="status-pill neutral">{app.status}</span>
+                                    }
                                 </div>
                             </div>
                         ))

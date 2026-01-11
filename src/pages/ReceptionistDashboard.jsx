@@ -22,6 +22,11 @@ const ReceptionistDashboard = () => {
     const [patientSearch, setPatientSearch] = useState('');
     const [viewPatientId, setViewPatientId] = useState(null);
 
+    // Reminder State
+    const [reminderApps, setReminderApps] = useState(new Set());
+    const [showReminderModal, setShowReminderModal] = useState(false);
+    const [currentReminder, setCurrentReminder] = useState(null);
+
     // Search & Booking State
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -116,7 +121,44 @@ const ReceptionistDashboard = () => {
         }
         fetchAppointments();
         fetchPatients();
-    }, [user, loading]);
+
+        // Polling for reminders every 60s
+        const interval = setInterval(checkReminders, 60000);
+        return () => clearInterval(interval);
+    }, [user, loading, appointments]); // Re-run when appointments change
+
+    const checkReminders = () => {
+        if (!appointments || appointments.length === 0) return;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        // Filter for pending appointments today
+        const upcoming = appointments.filter(app =>
+            app.status === 'booked' &&
+            app.date === todayStr &&
+            !reminderApps.has(app._id)
+        );
+
+        upcoming.forEach(app => {
+            const [h, m] = app.time.split(':');
+            const appTime = new Date();
+            appTime.setHours(parseInt(h), parseInt(m), 0, 0);
+
+            const diff = (appTime - now) / (1000 * 60); // Difference in minutes
+
+            // Trigger if within 20 mins AND not passed
+            if (diff > 0 && diff <= 20) {
+                setCurrentReminder(app);
+                setShowReminderModal(true);
+                setReminderApps(prev => new Set(prev).add(app._id));
+                toast('Upcoming Appointment Alert!', {
+                    icon: '⏰',
+                    duration: 5000
+                });
+            }
+        });
+    };
 
     const fetchPatients = async () => {
         try {
@@ -883,6 +925,48 @@ const ReceptionistDashboard = () => {
                             <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleRescheduleSubmit}>
                                 Confirm Reschedule
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* REMINDER MODAL */}
+            {showReminderModal && currentReminder && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ borderColor: '#f59e0b', borderWidth: '2px' }}>
+                        <div className="modal-header" style={{ background: '#fef3c7', padding: '1rem', borderBottom: '1px solid #fcd34d' }}>
+                            <h3 style={{ color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Clock size={20} /> Upcoming Appointment
+                            </h3>
+                            <button className="btn-icon" onClick={() => setShowReminderModal(false)}>Close</button>
+                        </div>
+                        <div className="card-body" style={{ textAlign: 'center', padding: '2rem' }}>
+                            <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e293b' }}>
+                                Patient <strong>{currentReminder.patientName}</strong> is scheduled for <strong>{formatTime(currentReminder.time)}</strong>.
+                            </p>
+                            <p style={{ color: '#64748b' }}>Please check if they have arrived.</p>
+
+                            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                                <button className="btn btn-outline" onClick={() => setShowReminderModal(false)}>Dismiss</button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={async () => {
+                                        try {
+                                            const token = localStorage.getItem('token');
+                                            await axios.put(`${import.meta.env.VITE_API_URL}/api/appointments/${currentReminder._id}/check-in`, {}, {
+                                                headers: { 'x-auth-token': token }
+                                            });
+                                            toast.success('Patient Checked In');
+                                            fetchAppointments();
+                                            setShowReminderModal(false);
+                                        } catch (err) {
+                                            toast.error('Check-in Failed');
+                                        }
+                                    }}
+                                >
+                                    Check In Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
