@@ -434,11 +434,20 @@ const Profile = () => {
                                                     <label>Blood Group</label>
                                                     <div className="input-with-icon">
                                                         <Droplet size={16} className="input-icon-inner" />
-                                                        <input
-                                                            type="text" name="bloodGroup"
-                                                            className="modern-input" placeholder="e.g. O+"
+                                                        <select
+                                                            name="bloodGroup" className="modern-input"
                                                             value={childData.bloodGroup} onChange={handleChildChange}
-                                                        />
+                                                        >
+                                                            <option value="">Select</option>
+                                                            <option value="A+">A+</option>
+                                                            <option value="A-">A-</option>
+                                                            <option value="B+">B+</option>
+                                                            <option value="B-">B-</option>
+                                                            <option value="AB+">AB+</option>
+                                                            <option value="AB-">AB-</option>
+                                                            <option value="O+">O+</option>
+                                                            <option value="O-">O-</option>
+                                                        </select>
                                                     </div>
                                                 </div>
 

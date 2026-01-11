@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
     Calendar, Users, FileText, Activity, Search,
-    UserPlus, Clock, Plus, Phone, Trash2
+    UserPlus, Clock, Plus, Phone, Trash2, XCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './AdminDashboard.css'; // Reusing Admin Styles for now
@@ -649,12 +649,17 @@ const ReceptionistDashboard = () => {
             {/* BOOKING MODAL */}
             {showBookingModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3>New Appointment</h3>
-                            <button className="btn-icon" onClick={() => setShowBookingModal(false)}>Close</button>
+                    <div className="modal-content" style={{ maxWidth: '500px' }}>
+                        <div className="modal-header" style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0 }}>New Appointment</h3>
+                            <button
+                                onClick={() => setShowBookingModal(false)}
+                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                            >
+                                <XCircle size={24} />
+                            </button>
                         </div>
-                        <div className="card-body">
+                        <div className="card-body" style={{ padding: '1.5rem' }}>
                             {/* Step 1: Search Patient */}
                             {!selectedPatient ? (
                                 <div>
@@ -663,20 +668,42 @@ const ReceptionistDashboard = () => {
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                                             <input
                                                 type="text" className="modern-input"
-                                                placeholder="e.g. 98765..."
+                                                placeholder="Search by Phone Number..."
                                                 value={searchQuery}
                                                 onChange={e => setSearchQuery(e.target.value)}
+                                                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                                                autoFocus
                                             />
                                             <button className="btn btn-primary" onClick={handleSearch}>
                                                 <Search size={18} />
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="search-results" style={{ marginTop: '1rem' }}>
+                                    <div className="search-results" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
                                         {Array.isArray(searchResults) && searchResults.map(u => (
-                                            <div key={u._id} className="patient-card-mini" onClick={() => setSelectedPatient(u)}>
-                                                <strong>{u.name}</strong>
-                                                <span>{u.phone}</span>
+                                            <div key={u._id}
+                                                className="patient-card-mini fade-in-up"
+                                                onClick={() => setSelectedPatient(u)}
+                                                style={{
+                                                    padding: '1rem',
+                                                    border: '1px solid #e2e8f0',
+                                                    borderRadius: '0.75rem',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                                onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'transparent'; }}
+                                            >
+                                                <div>
+                                                    <div style={{ fontWeight: '600', color: '#1e293b' }}>{u.name}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{u.phone}</div>
+                                                </div>
+                                                <div style={{ background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569' }}>
+                                                    Select
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

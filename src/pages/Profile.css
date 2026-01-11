@@ -483,6 +483,7 @@
 }
 
 .child-form-row.two-col {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;

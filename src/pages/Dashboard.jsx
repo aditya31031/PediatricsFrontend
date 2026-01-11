@@ -201,6 +201,32 @@ const Dashboard = () => {
 
     if (loading || isLoading) return <div className="loading-screen">Loading...</div>;
 
+    const handleUpdateChild = async (childId, updateData) => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/auth/child/${childId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            if (res.ok) {
+                const updatedChildren = await res.json();
+                const updatedUser = { ...user, children: updatedChildren };
+                updateUser(updatedUser);
+                toast.success('Child profile updated');
+            } else {
+                toast.error('Failed to update profile');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Server Error');
+        }
+    };
+
     return (
         <div className="dashboard-page container">
             <Link to="/" className="btn btn-outline btn-sm btn-box" style={{ marginBottom: '2rem', alignSelf: 'flex-start' }}>
@@ -312,6 +338,7 @@ const Dashboard = () => {
                             child={selectedChild}
                             parentName={user.name}
                             parentPhone={user.phone}
+                            onUpdateChild={handleUpdateChild}
                         />
                     </div>
 
