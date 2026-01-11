@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Calendar, Clock, User, XCircle, ArrowLeft, Activity, Syringe, Ruler, Weight, Bell } from 'lucide-react';
+import { Calendar, Clock, User, XCircle, ArrowLeft, Activity, Syringe, Ruler, Weight, Bell, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import HealthCard from '../components/HealthCard';
 import VaccinationTracker from '../components/VaccinationTracker';
@@ -175,7 +175,7 @@ const Dashboard = () => {
             {/* UPCOMING APPOINTMENTS */}
             <div className="appointments-section">
                 <h3><Calendar size={20} /> Upcoming Appointments</h3>
-                {appointments.filter(a => new Date(a.date) >= new Date().setHours(0, 0, 0, 0)).length === 0 ? (
+                {appointments.filter(a => a.status !== 'completed' && a.status !== 'cancelled' && new Date(a.date) >= new Date().setHours(0, 0, 0, 0)).length === 0 ? (
                     <div className="empty-dashboard">
                         <p>No upcoming appointments.</p>
                         <button className="btn btn-primary" onClick={() => navigate('/#book-appointment')}>
@@ -185,60 +185,98 @@ const Dashboard = () => {
                 ) : (
                     <div className="cards-grid">
                         {appointments
-                            .filter(a => new Date(a.date) >= new Date().setHours(0, 0, 0, 0))
+                            .filter(a => a.status !== 'completed' && a.status !== 'cancelled' && new Date(a.date) >= new Date().setHours(0, 0, 0, 0))
                             .map(app => (
                                 <div key={app._id} className="appointment-card">
-                                    <div className="app-status badge-booked">{app.status}</div>
-                                    <div className="app-details">
-                                        <div className="detail-row">
-                                            <Calendar size={18} className="text-primary" />
+                                    <div className="card-header">
+                                        <div className="card-date-strip">
+                                            <Calendar size={16} className="text-primary" />
                                             <span>{app.date}</span>
                                         </div>
-                                        <div className="detail-row">
-                                            <Clock size={18} className="text-primary" />
+                                        <div className="app-status badge-booked">{app.status}</div>
+                                    </div>
+
+                                    <div className="card-body">
+                                        <div className="patient-info-row">
+                                            <span className="patient-name">{app.patientName}</span>
+                                            <div className="patient-meta">
+                                                <User size={12} /> {app.patientAge} yrs
+                                            </div>
+                                        </div>
+
+                                        <div className="time-row">
+                                            <Clock size={16} className="text-primary" />
                                             <span>{app.time}</span>
                                         </div>
-                                        <div className="detail-row">
-                                            <User size={18} className="text-primary" />
-                                            <span>{app.patientName} ({app.patientAge} yrs)</span>
+
+                                        <div className="card-actions">
+                                            <button
+                                                className="btn-modern btn-primary-soft"
+                                                onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Pediatric+CMS+Clinic', '_blank')}
+                                            >
+                                                <MapPin size={16} /> Get Directions
+                                            </button>
+                                            <button
+                                                className="btn-modern btn-danger-soft"
+                                                onClick={() => handleCancel(app._id)}
+                                            >
+                                                <XCircle size={16} /> Cancel
+                                            </button>
                                         </div>
                                     </div>
-                                    <button
-                                        className="btn btn-outline btn-sm btn-danger mt-3"
-                                        onClick={() => handleCancel(app._id)}
-                                    >
-                                        <XCircle size={16} /> Cancel Appointment
-                                    </button>
                                 </div>
-                            ))}
+                            ))
+                        }
                     </div>
                 )}
             </div>
 
-            {/* PAST HISTORY */}
-            <div className="appointments-section history-section" style={{ marginTop: '3rem', opacity: 0.8 }}>
-                <h3><Clock size={20} /> Appointment History</h3>
+            {/* PAST & COMPLETED HISTORY */}
+            <div className="appointments-section history-section" style={{ marginTop: '3rem' }}>
+                <h3><Clock size={20} /> Visit History</h3>
                 <div className="cards-grid">
                     {appointments
-                        .filter(a => new Date(a.date) < new Date().setHours(0, 0, 0, 0))
-                        .length === 0 ? <p className="text-muted">No past appointments.</p> :
+                        .filter(a => a.status === 'completed' || new Date(a.date) < new Date().setHours(0, 0, 0, 0))
+                        .length === 0 ? <p className="text-muted">No past visits.</p> :
                         appointments
-                            .filter(a => new Date(a.date) < new Date().setHours(0, 0, 0, 0))
+                            .filter(a => a.status === 'completed' || new Date(a.date) < new Date().setHours(0, 0, 0, 0))
                             .map(app => (
-                                <div key={app._id} className="appointment-card past-card" style={{ background: '#f9fafb' }}>
-                                    <div className="app-status" style={{ background: '#e5e7eb', color: '#374151' }}>{app.status}</div>
-                                    <div className="app-details">
-                                        <div className="detail-row">
-                                            <Calendar size={18} color="#9ca3af" />
-                                            <span style={{ color: '#6b7280' }}>{app.date}</span>
+                                <div key={app._id} className={`appointment-card visit-history-card ${app.status === 'completed' ? 'visited' : ''}`}>
+                                    <div className="card-header" style={{ background: app.status === 'completed' ? '#f0fdf4' : '#f8fafc', borderBottomColor: app.status === 'completed' ? '#dcfce7' : '#f1f5f9' }}>
+                                        <div className="card-date-strip">
+                                            <Calendar size={16} color={app.status === 'completed' ? '#166534' : '#64748b'} />
+                                            <span>{app.date}</span>
                                         </div>
-                                        <div className="detail-row">
-                                            <Clock size={18} color="#9ca3af" />
-                                            <span style={{ color: '#6b7280' }}>{app.time}</span>
+                                        <div className="app-status"
+                                            style={{
+                                                background: app.status === 'completed' ? '#dcfce7' : '#e5e7eb',
+                                                color: app.status === 'completed' ? '#166534' : '#374151'
+                                            }}>
+                                            {app.status === 'completed' ? 'Visited ✅' : app.status}
                                         </div>
-                                        <div className="detail-row">
-                                            <User size={18} color="#9ca3af" />
-                                            <span style={{ color: '#6b7280' }}>{app.patientName}</span>
+                                    </div>
+
+                                    <div className="card-body">
+                                        <div className="patient-info-row">
+                                            <span className="patient-name">{app.patientName}</span>
+                                        </div>
+
+                                        <div className="time-row">
+                                            <Clock size={16} color="#94a3b8" />
+                                            <span>{app.time}</span>
+                                            <span style={{ margin: '0 0.5rem', color: '#cbd5e1' }}>|</span>
+                                            <Activity size={16} color="#94a3b8" />
+                                            <span>{app.category}</span>
+                                        </div>
+
+                                        <div className="card-actions">
+                                            <button
+                                                className="btn-modern btn-primary-soft"
+                                                style={{ width: '100%' }}
+                                                onClick={() => navigate('/#book-appointment')}
+                                            >
+                                                Book Again
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -248,7 +286,7 @@ const Dashboard = () => {
             </div>
             {/* PATIENT STORIES / TOPICS */}
 
-        </div>
+        </div >
     );
 };
 

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
     Calendar, Users, FileText, Activity, Search,
-    UserPlus, Clock, Plus, Phone
+    UserPlus, Clock, Plus, Phone, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './AdminDashboard.css'; // Reusing Admin Styles for now
@@ -33,37 +33,27 @@ const ReceptionistDashboard = () => {
     const [regData, setRegData] = useState({
         parentName: '',
         parentPhone: '',
-        childName: '',
-        childAge: '',
-        childGender: 'Male'
+        children: [{ name: '', age: '', gender: 'Male' }] // Ensure children array exists
     });
 
-    // Reschedule State
-    const [rescheduleData, setRescheduleData] = useState({
-        id: null,
-        date: '',
-        time: '',
-        message: ''
-    });
-    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const handleAddChild = () => {
+        setRegData({
+            ...regData,
+            children: [...regData.children, { name: '', age: '', gender: 'Male' }]
+        });
+    };
 
-    useEffect(() => {
-        if (!loading && (!user || user.role !== 'receptionist')) {
-            // navigate('/'); // Commented out for dev/testing ease if needed
-        }
-        fetchAppointments();
-    }, [user, loading]);
+    const handleRemoveChild = (index) => {
+        const updatedChildren = regData.children.filter((_, i) => i !== index);
+        setRegData({ ...regData, children: updatedChildren });
+    };
 
-    const fetchAppointments = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/appointments/all`, {
-                headers: { 'x-auth-token': token }
-            });
-            setAppointments(res.data);
-        } catch (err) {
-            console.error(err);
-        }
+    const handleChildChange = (index, field, value) => {
+        const updatedChildren = regData.children.map((child, i) => {
+            if (i === index) return { ...child, [field]: value };
+            return child;
+        });
+        setRegData({ ...regData, children: updatedChildren });
     };
 
     const handleQuickRegister = async (e) => {
@@ -84,6 +74,59 @@ const ReceptionistDashboard = () => {
             toast.error('Registration Failed');
         }
     };
+    const [rescheduleData, setRescheduleData] = useState({
+        id: null,
+        date: '',
+        time: '',
+        message: ''
+    });
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+
+    // Filter Logic
+    const [filterMode, setFilterMode] = useState('today'); // today, yesterday, history, custom
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [filterCategory, setFilterCategory] = useState('All');
+
+    const getFilteredAppointments = () => {
+        if (!Array.isArray(appointments)) return [];
+
+        return appointments.filter(app => {
+            // Date Filter
+            let dateMatch = false;
+            if (filterMode === 'history') dateMatch = true;
+            else dateMatch = app.date === selectedDate;
+
+            // Category Filter
+            let categoryMatch = false;
+            if (filterCategory === 'All') categoryMatch = true;
+            else categoryMatch = app.category === filterCategory;
+
+            return dateMatch && categoryMatch;
+        });
+    };
+
+    useEffect(() => {
+        if (!loading && (!user || user.role !== 'receptionist')) {
+            // navigate('/'); // Commented out for dev/testing ease if needed
+        }
+        fetchAppointments();
+    }, [user, loading]);
+
+    const fetchAppointments = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/appointments/all`, {
+                headers: { 'x-auth-token': token }
+            });
+            setAppointments(res.data);
+            console.log("User Data:", res.data); // Debugging
+            console.log("Appointments Data:", res.data); // Debugging
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
 
     const handleSearch = async () => {
         try {
@@ -167,11 +210,45 @@ const ReceptionistDashboard = () => {
                     <p>Welcome, {user?.name}</p>
                 </div>
                 <div className="admin-stats">
-                    <div className="stat-card" onClick={() => setActiveTab('appointments')}>
-                        <Calendar size={20} />
+                    <div className="stat-card" onClick={() => { setActiveTab('appointments'); setFilterMode('today'); }}>
+                        <div className="icon-wrapper" style={{ background: '#e0f2fe', color: '#0ea5e9' }}>
+                            <Calendar size={20} />
+                        </div>
                         <div>
-                            <h3>{appointments.length}</h3>
-                            <p>Today's Visits</p>
+                            <h3>{appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length}</h3>
+                            <p>Today's Total</p>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="icon-wrapper" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                            <Activity size={20} />
+                        </div>
+                        <div>
+                            <h3>{appointments.filter(a => a.date === new Date().toISOString().split('T')[0] && a.status === 'completed').length}</h3>
+                            <p>Completed</p>
+                        </div>
+                    </div>
+                    <div className="stat-card" style={{ minWidth: '200px' }}>
+                        <div className="icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}>
+                            <Clock size={20} />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.75rem', marginBottom: '0.2rem' }}>Next Patient</p>
+                            {(() => {
+                                const now = new Date();
+                                const todayStr = now.toISOString().split('T')[0];
+                                const nextAppt = appointments
+                                    .filter(a => a.date === todayStr && a.status !== 'completed' && a.status !== 'cancelled')
+                                    .sort((a, b) => a.time.localeCompare(b.time))[0];
+
+                                return nextAppt ? (
+                                    <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>
+                                        {nextAppt.time} - {nextAppt.patientName}
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>No pending visits</div>
+                                );
+                            })()}
                         </div>
                     </div>
                 </div>
@@ -201,15 +278,81 @@ const ReceptionistDashboard = () => {
             {/* APPOINTMENTS VIEW */}
             {activeTab === 'appointments' && (
                 <div className="appointments-table-container fade-in-up">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <h3>Schedule</h3>
-                        <button className="btn btn-sm btn-outline" onClick={fetchAppointments}>Refresh</button>
+
+                        {/* Date Filters */}
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button
+                                className={`btn btn-sm ${filterMode === 'today' ? 'btn-primary' : 'btn-outline'}`}
+                                onClick={() => { setFilterMode('today'); setSelectedDate(new Date().toISOString().split('T')[0]); }}
+                            >
+                                Today
+                            </button>
+                            <button
+                                className={`btn btn-sm ${filterMode === 'yesterday' ? 'btn-primary' : 'btn-outline'}`}
+                                onClick={() => {
+                                    const y = new Date();
+                                    y.setDate(y.getDate() - 1);
+                                    setFilterMode('yesterday');
+                                    setSelectedDate(y.toISOString().split('T')[0]);
+                                }}
+                            >
+                                Yesterday
+                            </button>
+                            <button
+                                className={`btn btn-sm ${filterMode === 'history' ? 'btn-primary' : 'btn-outline'}`}
+                                onClick={() => setFilterMode('history')}
+                            >
+                                All History
+                            </button>
+
+                            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.25rem 0.5rem', background: 'white' }}>
+                                <Calendar size={14} color="#64748b" style={{ marginRight: '0.5rem' }} />
+                                <input
+                                    type="date"
+                                    value={selectedDate}
+                                    onChange={(e) => {
+                                        setSelectedDate(e.target.value);
+                                        setFilterMode('custom');
+                                    }}
+                                    style={{ border: 'none', outline: 'none', fontSize: '0.85rem', color: '#334155' }}
+                                />
+                            </div>
+
+                            {/* Category Filter */}
+                            <select
+                                className="form-select-sm"
+                                value={filterCategory}
+                                onChange={(e) => setFilterCategory(e.target.value)}
+                                style={{
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '0.5rem',
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.85rem',
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="All">All Types</option>
+                                <option value="General Checkup">General Checkup</option>
+                                <option value="Vaccination">Vaccination</option>
+                                <option value="Newborn Care">Newborn Care</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+
+                            <button className="btn btn-sm btn-outline" onClick={fetchAppointments} title="Refresh Data">
+                                <Activity size={14} />
+                            </button>
+                        </div>
                     </div>
+
                     <table className="admin-table">
                         <thead>
                             <tr>
                                 <th>Time</th>
                                 <th>Patient</th>
+                                <th>Parent / Guardian</th>
                                 <th>Doctor</th>
                                 <th>Type</th>
                                 <th>Status</th>
@@ -217,51 +360,77 @@ const ReceptionistDashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {Array.isArray(appointments) && appointments.map(app => (
-                                <tr key={app._id}>
-                                    <td>{app.time}</td>
-                                    <td>
-                                        <strong>{app.patientName}</strong>
-                                        <div style={{ fontSize: '0.8rem', color: '#666' }}>ID: {app._id.slice(-4)}</div>
-                                    </td>
-                                    <td>Dr. Aditi</td>
-                                    <td><span className="category-badge">{app.category}</span></td>
-                                    <td><span className={`status-badge ${app.status}`}>{app.status}</span></td>
-                                    <td>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            {app.status !== 'completed' && (
-                                                <button
-                                                    className="btn btn-sm btn-primary"
-                                                    onClick={async () => {
-                                                        if (!window.confirm('Mark this visit as completed?')) return;
-                                                        try {
-                                                            const token = localStorage.getItem('token');
-                                                            await axios.put(`${import.meta.env.VITE_API_URL}/api/appointments/${app._id}/complete`, {}, {
-                                                                headers: { 'x-auth-token': token }
-                                                            });
-                                                            toast.success('Marked as Completed');
-                                                            fetchAppointments();
-                                                        } catch (err) {
-                                                            toast.error('Action Failed');
-                                                        }
-                                                    }}
-                                                    style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
-                                                    title="Mark Visited"
-                                                >
-                                                    <Activity size={12} /> Done
-                                                </button>
+                            {getFilteredAppointments().length > 0 ? (
+                                getFilteredAppointments().map(app => (
+                                    <tr key={app._id}>
+                                        <td>
+                                            <div style={{ fontWeight: '600', color: '#334155' }}>{app.time}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{new Date(app.date).toLocaleDateString()}</div>
+                                        </td>
+                                        <td>
+                                            <strong style={{ color: '#1e293b' }}>{app.patientName}</strong>
+                                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{app.patientAge} yrs • {app._id.slice(-4)}</div>
+                                        </td>
+                                        <td>
+                                            {app.userId ? (
+                                                <div>
+                                                    <div style={{ fontWeight: '500', color: '#334155' }}>{app.userId.name}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                        <Phone size={10} /> {app.userId.phone || 'N/A'}
+                                                        {console.log(app, "sss")}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Walk-in / Unregistered</span>
                                             )}
-                                            <button
-                                                className="btn btn-sm btn-outline"
-                                                onClick={() => openRescheduleModal(app)}
-                                                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
-                                            >
-                                                Reschedule
-                                            </button>
-                                        </div>
+                                        </td>
+                                        <td>Dr. Sai Manohar</td>
+                                        <td><span className="category-badge">{app.category}</span></td>
+                                        <td><span className={`status-badge ${app.status}`}>{app.status}</span></td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                {app.status !== 'completed' && (
+                                                    <button
+                                                        className="btn btn-sm btn-primary"
+                                                        onClick={async () => {
+                                                            if (!window.confirm('Mark this visit as completed?')) return;
+                                                            try {
+                                                                const token = localStorage.getItem('token');
+                                                                await axios.put(`${import.meta.env.VITE_API_URL}/api/appointments/${app._id}/complete`, {}, {
+                                                                    headers: { 'x-auth-token': token }
+                                                                });
+                                                                toast.success('Marked as Completed');
+                                                                fetchAppointments();
+                                                            } catch (err) {
+                                                                toast.error('Action Failed');
+                                                            }
+                                                        }}
+                                                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                                                        title="Mark Visited"
+                                                    >
+                                                        <Activity size={12} /> Done
+                                                    </button>
+                                                )}
+                                                {app.status !== 'completed' && (
+                                                    <button
+                                                        className="btn btn-sm btn-outline"
+                                                        onClick={() => openRescheduleModal(app)}
+                                                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                                        No appointments found for this filter.
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -277,53 +446,68 @@ const ReceptionistDashboard = () => {
                     <div className="card-body">
                         <form onSubmit={handleQuickRegister}>
                             <h4>Parent Details</h4>
-                            <div className="form-group-modern">
-                                <label>Parent Name</label>
-                                <input
-                                    type="text" className="modern-input" required
-                                    value={regData.parentName}
-                                    onChange={e => setRegData({ ...regData, parentName: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group-modern">
-                                <label>Phone Number</label>
-                                <input
-                                    type="tel" className="modern-input" required
-                                    value={regData.parentPhone}
-                                    onChange={e => setRegData({ ...regData, parentPhone: e.target.value })}
-                                />
+                            <div className="grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div className="form-group-modern">
+                                    <label>Parent Name</label>
+                                    <input
+                                        type="text" className="modern-input" required
+                                        value={regData.parentName}
+                                        onChange={e => setRegData({ ...regData, parentName: e.target.value })}
+                                        placeholder="Full Name"
+                                    />
+                                </div>
+                                <div className="form-group-modern">
+                                    <label>Phone Number</label>
+                                    <input
+                                        type="tel" className="modern-input" required
+                                        value={regData.parentPhone}
+                                        onChange={e => setRegData({ ...regData, parentPhone: e.target.value })}
+                                        placeholder="Mobile Number"
+                                    />
+                                </div>
                             </div>
 
-                            <h4 style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                Children Details
-                                <button type="button" className="btn btn-sm btn-outline" onClick={handleAddChild}>
-                                    <Plus size={16} /> Add Child
-                                </button>
-                            </h4>
+                            <div className="section-divider" style={{ borderTop: '1px solid #e2e8f0', margin: '1rem 0', paddingTop: '1rem' }}>
+                                <h4 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    Children Details
+                                    <button type="button" className="btn btn-sm btn-outline" onClick={handleAddChild}>
+                                        <Plus size={16} /> Add Another Child
+                                    </button>
+                                </h4>
 
-                            {regData.children.map((child, index) => (
-                                <div key={index} className="child-form-group" style={{ borderBottom: '1px solid #eee', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#666' }}>Child {index + 1}</span>
+                                <div key={index} className="child-form-card" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem', border: '1px solid #e2e8f0' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#475569' }}>Child {index + 1}</span>
                                         {regData.children.length > 1 && (
-                                            <button type="button" className="btn-text text-danger" onClick={() => handleRemoveChild(index)}>Remove</button>
+                                            <button
+                                                type="button"
+                                                className="btn-icon-danger"
+                                                onClick={() => handleRemoveChild(index)}
+                                                title="Remove Child"
+                                                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#ef4444' }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         )}
                                     </div>
-                                    <div className="form-group-modern">
-                                        <label>Child Name</label>
-                                        <input
-                                            type="text" className="modern-input" required
-                                            value={child.name}
-                                            onChange={e => handleChildChange(index, 'name', e.target.value)}
-                                        />
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+
+                                    <div className="grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div className="form-group-modern" style={{ gridColumn: '1 / -1' }}>
+                                            <label>Child Name</label>
+                                            <input
+                                                type="text" className="modern-input" required
+                                                value={child.name}
+                                                onChange={e => handleChildChange(index, 'name', e.target.value)}
+                                                placeholder="Child's Full Name"
+                                            />
+                                        </div>
                                         <div className="form-group-modern">
                                             <label>Age</label>
                                             <input
                                                 type="number" className="modern-input" required
                                                 value={child.age}
                                                 onChange={e => handleChildChange(index, 'age', e.target.value)}
+                                                placeholder="Age"
                                             />
                                         </div>
                                         <div className="form-group-modern">
@@ -337,11 +521,30 @@ const ReceptionistDashboard = () => {
                                                 <option>Female</option>
                                             </select>
                                         </div>
+                                        <div className="form-group-modern">
+                                            <label>Blood Group</label>
+                                            <select
+                                                className="modern-input"
+                                                value={child.bloodGroup}
+                                                onChange={e => handleChildChange(index, 'bloodGroup', e.target.value)}
+                                            >
+                                                <option value="">Select Blood Group </option>
+                                                <option value="A+">A+</option>
+                                                <option value="A-">A-</option>
+                                                <option value="B+">B+</option>
+                                                <option value="B-">B-</option>
+                                                <option value="O+">O+</option>
+                                                <option value="O-">O-</option>
+                                                <option value="AB+">AB+</option>
+                                                <option value="AB-">AB-</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
+                                ))}
+                            </div>
 
-                            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '0.75rem', fontSize: '1rem' }}>
                                 Register & Create Profile
                             </button>
                         </form>

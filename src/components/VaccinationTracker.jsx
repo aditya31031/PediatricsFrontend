@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, Circle, Syringe, Calendar, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -61,26 +61,7 @@ const VaccinationTracker = ({ child, onUpdate }) => {
 
     return (
         <div className="vaccine-tracker-container fade-in-up">
-            <div className="tracker-header-premium">
-                <div className="header-icon-box">
-                    <ShieldCheck size={28} color="white" />
-                </div>
-                <div className="header-text">
-                    <h3>Immunization Shield</h3>
-                    <p>Standard Vaccination Schedule</p>
-                </div>
-                <div className="progress-circle">
-                    <svg viewBox="0 0 36 36" className="circular-chart">
-                        <path className="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path className="circle"
-                            strokeDasharray={`${progressPercentage}, 100`}
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <text x="18" y="20.35" className="percentage">{progressPercentage}%</text>
-                    </svg>
-                </div>
-            </div>
-
+            {/* Timeline Cards Container */}
             <div className="timeline-cards">
                 {VACCINE_SCHEDULE.map((slot, index) => {
                     const allDone = slot.vaccines.every(v => isVaccineCompleted(v));
@@ -131,62 +112,7 @@ const VaccinationTracker = ({ child, onUpdate }) => {
                     overflow: hidden;
                     border: 1px solid #f3f4f6;
                 }
-                .tracker-header-premium {
-                    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-                    padding: 1.5rem;
-                    color: white;
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                }
-                .header-icon-box {
-                    background: rgba(255, 255, 255, 0.2);
-                    padding: 0.75rem;
-                    border-radius: 1rem;
-                    backdrop-filter: blur(5px);
-                }
-                .header-text h3 {
-                    margin: 0;
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    color: white;
-                }
-                .header-text p {
-                    margin: 0;
-                    font-size: 0.85rem;
-                    opacity: 0.9;
-                }
-                .progress-circle {
-                    margin-left: auto;
-                    width: 50px;
-                    height: 50px;
-                }
-                .circular-chart {
-                    display: block;
-                    margin: 0 auto;
-                    max-width: 100%;
-                    max-height: 100%;
-                }
-                .circle-bg {
-                    fill: none;
-                    stroke: rgba(255,255,255,0.2);
-                    stroke-width: 3.8;
-                }
-                .circle {
-                    fill: none;
-                    stroke: #4ade80;
-                    stroke-width: 2.8;
-                    stroke-linecap: round;
-                    animation: progress 1s ease-out forwards;
-                }
-                .percentage {
-                    fill: white;
-                    font-family: sans-serif;
-                    font-weight: bold;
-                    font-size: 0.5em;
-                    text-anchor: middle;
-                }
-
+                
                 .timeline-cards {
                     padding: 1.5rem;
                     display: grid;

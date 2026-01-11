@@ -224,6 +224,9 @@
 /* Appointments Section */
 .appointments-section {
     margin-top: 3rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .appointments-section h3 {
@@ -243,36 +246,48 @@
     gap: 1.5rem;
 }
 
+/* Redesigned Card Layout */
 .appointment-card {
     background: white;
     border-radius: 1.25rem;
-    padding: 1.5rem;
+    padding: 0;
     position: relative;
     border: 1px solid #e2e8f0;
     transition: all 0.25s ease;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .appointment-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.1);
     border-color: #cbd5e1;
 }
 
-.appointment-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--primary-color);
+.card-header {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-date-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: #334155;
+    font-size: 0.9rem;
+}
+
+.card-body {
+    padding: 1.5rem;
 }
 
 .app-status {
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
     font-size: 0.7rem;
     font-weight: 700;
     padding: 0.35rem 0.75rem;
@@ -286,45 +301,110 @@
     color: #059669;
 }
 
-.app-details {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.detail-row {
+.patient-info-row {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-.detail-row span {
-    font-size: 0.95rem;
+.patient-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: capitalize;
+}
+
+.patient-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f1f5f9;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+}
+
+.time-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
     color: #475569;
     font-weight: 500;
+    font-size: 0.95rem;
 }
 
-.btn-danger {
+/* Card Actions */
+.card-actions {
+    display: flex;
+    gap: 0.75rem;
     margin-top: 1.5rem;
-    width: 100%;
-    padding: 0.75rem;
+}
+
+.btn-modern {
+    padding: 0.6rem 1rem;
     border-radius: 0.75rem;
-    border: 1px solid #fee2e2;
-    background: white;
-    color: #ef4444;
     font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s;
+    font-size: 0.85rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    cursor: pointer;
+    border: 1px solid transparent;
 }
 
-.btn-danger:hover {
+/* Primary Button (Get Directions / Book) */
+.btn-primary-soft {
+    background: #eff6ff;
+    color: var(--primary-color);
+    border-color: #bfdbfe;
+    /* flex: 1; Removed to make compact */
+}
+
+.btn-primary-soft:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Danger Button (Cancel) */
+.btn-danger-soft {
     background: #fef2f2;
+    color: #ef4444;
     border-color: #fecaca;
+    /* flex: 1; Removed to make compact */
+}
+
+.btn-danger-soft:hover {
+    background: #fee2e2;
+    border-color: #fda4af;
+    color: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Visited Card Styling */
+.visit-history-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.visit-history-card:hover {
+    opacity: 1;
+    border-color: #cbd5e1;
+}
+
+.visit-history-card.visited {
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+    opacity: 1;
 }
 
 /* Animations */
