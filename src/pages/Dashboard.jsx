@@ -91,8 +91,10 @@ const Dashboard = () => {
 
     // Calculate Queue Stats for the logged-in user
     const getQueueStats = () => {
-        // Find my appointment today
-        const todayStr = new Date().toISOString().split('T')[0];
+        // Find my appointment today (Use local date to match booking date)
+        const d = new Date();
+        const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
         const myAppt = appointments.find(a =>
             a.status === 'booked' &&
             a.date === todayStr
@@ -100,24 +102,23 @@ const Dashboard = () => {
 
         if (!myAppt) return null;
 
-        // Find my position in the public queue
-        const myIndex = queueData.findIndex(q => q.id === myAppt._id);
+        // Find my position in the public queue using _id
+        const myIndex = queueData.findIndex(q => q._id === myAppt._id);
         if (myIndex === -1) return null;
 
         const myToken = myIndex + 1;
 
-        // Find current token (first 'checked-in' or 'in-progress', or just the first booked if none)
-        // Actually, 'checked-in' means they are waiting. 'in-progress' means they are with doctor.
-        // We want to know how many people are AHEAD of me.
+        // Find current token (first non-completed/cancelled in sorted list)
+        const currentTokenIndex = queueData.findIndex(q => q.status !== 'completed' && q.status !== 'cancelled');
+        const currentToken = currentTokenIndex !== -1 ? currentTokenIndex + 1 : '-';
 
-        // Filter queue items before me
         const peopleAhead = queueData.slice(0, myIndex).filter(q =>
             q.status === 'booked' || q.status === 'checked-in' || q.status === 'in-progress'
         ).length;
 
         const estWaitTime = peopleAhead * 15; // 15 mins per patient approx
 
-        return { myToken, peopleAhead, estWaitTime };
+        return { myToken, peopleAhead, estWaitTime, currentToken };
     };
 
     const queueStats = getQueueStats();
@@ -170,7 +171,6 @@ const Dashboard = () => {
                     </Link>
                 </div>
 
-                {/* QUEUE CARD - Only show if I have an appointment today */}
                 {queueStats && (
                     <div className="queue-card fade-in-up" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)', color: 'white', padding: '1.5rem', borderRadius: '1.5rem', boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -183,14 +183,18 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
                             <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '1rem', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{queueStats.peopleAhead}</div>
-                                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>People Ahead</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>#{queueStats.currentToken}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>Current Token</div>
                             </div>
                             <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '1rem', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{queueStats.estWaitTime}<span style={{ fontSize: '1rem' }}>m</span></div>
-                                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>Est. Wait Time</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{queueStats.peopleAhead}</div>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>People Ahead</div>
+                            </div>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '1rem', textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{queueStats.estWaitTime}<span style={{ fontSize: '1rem' }}>m</span></div>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>Est. Wait Time</div>
                             </div>
                         </div>
                     </div>

@@ -17,6 +17,11 @@ const ReceptionistDashboard = () => {
     const [appointments, setAppointments] = useState([]);
     const [showBookingModal, setShowBookingModal] = useState(false);
 
+    // Patients Tab State
+    const [patients, setPatients] = useState([]);
+    const [patientSearch, setPatientSearch] = useState('');
+    const [viewPatientId, setViewPatientId] = useState(null);
+
     // Search & Booking State
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -110,7 +115,20 @@ const ReceptionistDashboard = () => {
             // navigate('/'); // Commented out for dev/testing ease if needed
         }
         fetchAppointments();
+        fetchPatients();
     }, [user, loading]);
+
+    const fetchPatients = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reception/patients`, {
+                headers: { 'x-auth-token': token }
+            });
+            setPatients(res.data);
+        } catch (err) {
+            console.error('Failed to load patients');
+        }
+    };
 
     const fetchAppointments = async () => {
         try {
@@ -270,6 +288,12 @@ const ReceptionistDashboard = () => {
                     <Calendar size={18} style={{ marginRight: '8px' }} /> Schedule
                 </button>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        className={`btn ${activeTab === 'patients' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => setActiveTab('patients')}
+                    >
+                        <Users size={18} style={{ marginRight: '8px' }} /> Patients
+                    </button>
                     <button className="btn btn-primary" onClick={() => { setShowBookingModal(true); setSelectedPatient(null); }}>
                         <Plus size={18} /> New Appointment
                     </button>
@@ -680,6 +704,145 @@ const ReceptionistDashboard = () => {
                             )}
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* PATIENTS TAB VIEW */}
+            {activeTab === 'patients' && (
+                <div className="fade-in-up">
+                    {!viewPatientId ? (
+                        <div className="appointments-table-container">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h3>Registered Patients</h3>
+                                <div className="search-bar" style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by Name/Phone..."
+                                        className="modern-input"
+                                        style={{ padding: '0.4rem 1rem', width: '250px' }}
+                                        value={patientSearch}
+                                        onChange={(e) => setPatientSearch(e.target.value)}
+                                    />
+                                    <button className="btn btn-primary"><Search size={16} /></button>
+                                </div>
+                            </div>
+
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Age/Gender</th>
+                                        <th>Blood Group</th>
+                                        <th>Parent Name</th>
+                                        <th>Contact</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {patients
+                                        .filter(p => !patientSearch ||
+                                            p.name.toLowerCase().includes(patientSearch.toLowerCase()) ||
+                                            p.parentPhone.includes(patientSearch) ||
+                                            p.parentName.toLowerCase().includes(patientSearch.toLowerCase())
+                                        )
+                                        .map(patient => (
+                                            <tr key={patient._id} className="hover-row">
+                                                <td style={{ fontWeight: '600' }}>{patient.name}</td>
+                                                <td>{patient.age} yrs / {patient.gender}</td>
+                                                <td><span className="category-badge" style={{ background: '#fee2e2', color: '#991b1b' }}>{patient.bloodGroup || 'N/A'}</span></td>
+                                                <td>{patient.parentName}</td>
+                                                <td><div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><Phone size={12} /> {patient.parentPhone}</div></td>
+                                                <td>
+                                                    <button
+                                                        className="btn btn-sm btn-outline"
+                                                        onClick={() => setViewPatientId(patient._id)}
+                                                    >
+                                                        View Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="patient-detail-view">
+                            <button className="btn btn-text" onClick={() => setViewPatientId(null)} style={{ marginBottom: '1rem' }}>
+                                &larr; Back to List
+                            </button>
+
+                            {(() => {
+                                const patient = patients.find(p => p._id === viewPatientId);
+                                if (!patient) return <div>Patient not found</div>;
+
+                                const patientHistory = appointments.filter(a =>
+                                    // Match by Patient Name AND Parent ID (if available in appointment)
+                                    // Or simplified matching since we don't have child ID in appointment
+                                    a.patientName === patient.name &&
+                                    (a.userId && (a.userId._id === patient.parentId || a.userId === patient.parentId))
+                                );
+
+                                return (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem' }}>
+                                        {/* Profile Card */}
+                                        <div className="settings-card" style={{ height: 'fit-content' }}>
+                                            <div className="card-header-clean">
+                                                <Users size={20} className="text-primary" />
+                                                <h3>Patient Board</h3>
+                                            </div>
+                                            <div className="card-body" style={{ textAlign: 'center' }}>
+                                                <div style={{ width: '80px', height: '80px', background: '#e0f2fe', borderRadius: '50%', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
+                                                    {patient.gender === 'Female' ? '👧' : '👦'}
+                                                </div>
+                                                <h2 style={{ margin: '0 0 0.5rem' }}>{patient.name}</h2>
+                                                <p className="text-muted">{patient.age} years • {patient.gender}</p>
+
+                                                <div style={{ marginTop: '1.5rem', textAlign: 'left', background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                                                    <div style={{ marginBottom: '0.5rem' }}><small className="text-muted">Blood Group</small><br /><strong>{patient.bloodGroup || 'Not set'}</strong></div>
+                                                    <div style={{ marginBottom: '0.5rem' }}><small className="text-muted">Guardian</small><br /><strong>{patient.parentName}</strong></div>
+                                                    <div><small className="text-muted">Contact</small><br /><strong>{patient.parentPhone}</strong></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* History Card */}
+                                        <div className="appointments-table-container">
+                                            <h3>Visit History</h3>
+                                            {patientHistory.length === 0 ? (
+                                                <p className="text-muted">No prior visits found for this patient.</p>
+                                            ) : (
+                                                <table className="admin-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Type</th>
+                                                            <th>Doctor</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {patientHistory.map(hist => (
+                                                            <tr key={hist._id}>
+                                                                <td>
+                                                                    <div style={{ fontWeight: '500' }}>{new Date(hist.date).toLocaleDateString()}</div>
+                                                                    <small className="text-muted">{formatTime(hist.time)}</small>
+                                                                </td>
+                                                                <td><span className="category-badge">{hist.category}</span></td>
+                                                                <td>Dr. Sai Manohar</td>
+                                                                <td>
+                                                                    <span className={`status-badge ${hist.status}`}>{hist.status}</span>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    )}
                 </div>
             )}
 
