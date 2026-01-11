@@ -41,7 +41,7 @@ const HealthCard = ({ child, parentName, parentPhone }) => {
                         <div className="patient-details">
                             <div className="detail-group primary">
                                 <label>Patient Name</label>
-                                <h3>{child.name}</h3>
+                                <h3>{child.name} {child.lastName || ''}</h3>
                             </div>
                             <div className="detail-row-grid">
                                 <div className="detail-group">
@@ -68,7 +68,7 @@ const HealthCard = ({ child, parentName, parentPhone }) => {
                         <span className="ec-value">{parentName} • {parentPhone || 'N/A'}</span>
                     </div>
                     <div className="qr-section">
-                        <QrCode size={32} color="white" opacity={0.8} />
+                        <QrCode size={32} color="white" stroke="black" opacity={0.8} />
                     </div>
                 </div>
 

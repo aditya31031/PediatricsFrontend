@@ -4,12 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Calendar, Clock, User, XCircle, ArrowLeft, Activity, Syringe, Ruler, Weight, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import HealthCard from '../components/HealthCard';
+import VaccinationTracker from '../components/VaccinationTracker';
 import './Dashboard.css';
 
 // Mock Data Removed
 
 const Dashboard = () => {
-    const { user, loading } = useAuth();
+    const { user, loading, updateUser } = useAuth();
     const [appointments, setAppointments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedChildIndex, setSelectedChildIndex] = useState(0);
@@ -118,7 +119,7 @@ const Dashboard = () => {
                 <div className="wellness-section">
                     <div className="section-intro">
                         <h3>Digital Health Card</h3>
-                        <p className="text-muted-sm">Official clinic identity for {selectedChild.name}</p>
+                        <p className="text-muted-sm">Official clinic identity for {selectedChild.name} {selectedChild.lastName || ''}</p>
                     </div>
 
                     <div className="health-card-wrapper fade-in-up">
@@ -152,18 +153,22 @@ const Dashboard = () => {
                 </div>
             ) : (
                 <div className="empty-state-card">
-                    <p>Add a child details to see wellness profile.</p>
+                    <p>Add child details to see wellness profile.</p>
                     <Link to="/profile" className="btn btn-primary btn-sm">Add Child</Link>
                 </div>
             )}
 
             {/* VACCINATION TRACKER */}
-            <div className="vaccine-section">
-                <h3><Syringe size={20} /> Vaccination Tracker</h3>
-                <div className="vaccine-timeline empty-timeline">
-                    <p className="text-muted">No vaccination records found.</p>
-                </div>
-            </div>
+            {selectedChild && (
+                <VaccinationTracker
+                    child={selectedChild}
+                    onUpdate={(updatedChildren) => {
+                        const updatedUser = { ...user, children: updatedChildren };
+                        updateUser(updatedUser);
+                        toast.success('Vaccination status updated');
+                    }}
+                />
+            )}
 
             {/* Notification section removed as per user request */}
 

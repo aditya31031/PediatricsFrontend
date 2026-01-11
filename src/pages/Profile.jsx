@@ -58,6 +58,7 @@ const Profile = () => {
     const [showAddChild, setShowAddChild] = useState(false);
     const [childData, setChildData] = useState({
         name: '',
+        lastName: '',
         age: '',
         gender: 'Male',
         bloodGroup: '',
@@ -160,6 +161,7 @@ const Profile = () => {
 
             const formData = new FormData();
             formData.append('name', childData.name);
+            formData.append('lastName', childData.lastName || '');
             formData.append('age', childData.age);
             formData.append('gender', childData.gender);
             formData.append('bloodGroup', childData.bloodGroup);
@@ -176,7 +178,7 @@ const Profile = () => {
             });
             updateUser(res.data); // Update AuthContext
             setChildren(res.data.children);
-            setChildData({ name: '', age: '', gender: 'Male', bloodGroup: '', weight: '', height: '', photo: '', photoFile: null }); // Reset
+            setChildData({ name: '', lastName: '', age: '', gender: 'Male', bloodGroup: '', weight: '', height: '', photo: '', photoFile: null }); // Reset
             setShowAddChild(false);
             toast.success('Child added successfully');
         } catch (err) {
@@ -377,15 +379,28 @@ const Profile = () => {
 
                                             <div className="child-form-grid">
 
-                                                <div className="form-group-modern">
-                                                    <label>Name</label>
-                                                    <div className="input-with-icon">
-                                                        <User size={16} className="input-icon-inner" />
-                                                        <input
-                                                            type="text" name="name" required
-                                                            className="modern-input" placeholder="Child's Name"
-                                                            value={childData.name} onChange={handleChildChange}
-                                                        />
+                                                <div className="child-form-row two-col">
+                                                    <div className="form-group-modern">
+                                                        <label>First Name</label>
+                                                        <div className="input-with-icon">
+                                                            <User size={16} className="input-icon-inner" />
+                                                            <input
+                                                                type="text" name="name" required
+                                                                className="modern-input" placeholder="First Name"
+                                                                value={childData.name} onChange={handleChildChange}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group-modern">
+                                                        <label>Last Name (Optional)</label>
+                                                        <div className="input-with-icon">
+                                                            <User size={16} className="input-icon-inner" />
+                                                            <input
+                                                                type="text" name="lastName"
+                                                                className="modern-input" placeholder="Last Name"
+                                                                value={childData.lastName || ''} onChange={handleChildChange}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
 

@@ -152,7 +152,14 @@ const Header = () => {
 
 
 
-                            {user.role !== 'admin' && (
+                            {user.role === 'receptionist' && (
+                                <Link to="/reception" className="btn btn-outline btn-sm btn-box mobile-booking-btn">
+                                    <Hospital size={16} />
+                                    <span className="mobile-hidden">Reception</span>
+                                </Link>
+                            )}
+
+                            {user.role !== 'admin' && user.role !== 'receptionist' && (
                                 <Link to="/dashboard" className="btn btn-outline btn-sm btn-box mobile-booking-btn">
                                     <Calendar size={16} />
                                     <span className="mobile-hidden">Booking</span>

@@ -72,9 +72,9 @@
 .logo-icon {
     color: #38bdf8;
     filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
-    width: 20px;
+    width: 40px;
     /* Defined size */
-    height: 20px;
+    height: 40px;
 }
 
 .clinic-text {
@@ -175,6 +175,7 @@
 }
 
 .detail-group.primary h3 {
+    text-transform: capitalize;
     font-size: 1.25rem;
     /* Reduced header size */
     font-weight: 700;

@@ -14,16 +14,20 @@ import { Toaster } from 'react-hot-toast';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import { useAuth } from './context/AuthContext'; // Import useAuth
 import { Navigate } from 'react-router-dom';
 
-// Wrapper for Patient-only routes (redirects Admin to dashboard)
+// Wrapper for Patient-only routes (redirects Admin/Staff to their dashboards)
 const PatientRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null; // or a spinner
 
   if (user && user.role === 'admin') {
     return <Navigate to="/admin" replace />;
+  }
+  if (user && user.role === 'receptionist') {
+    return <Navigate to="/reception" replace />;
   }
   return children;
 };
@@ -34,6 +38,17 @@ const AdminRoute = ({ children }) => {
   if (loading) return null;
 
   if (!user || user.role !== 'admin') {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// Wrapper for Receptionist
+const ReceptionistRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+
+  if (!user || user.role !== 'receptionist') {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -86,6 +101,12 @@ function App() {
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
+              } />
+
+              <Route path="/reception" element={
+                <ReceptionistRoute>
+                  <ReceptionistDashboard />
+                </ReceptionistRoute>
               } />
             </Routes>
           </main>
