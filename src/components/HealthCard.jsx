@@ -28,7 +28,15 @@ const HealthCard = ({ child, parentName, parentPhone }) => {
                 <div className="card-pro-body">
                     <div className="patient-grid">
                         <div className="patient-photo-placeholder">
-                            {child.name.charAt(0).toUpperCase()}
+                            {child.photo ? (
+                                <img
+                                    src={child.photo}
+                                    alt={child.name}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            ) : (
+                                child.name.charAt(0).toUpperCase()
+                            )}
                         </div>
                         <div className="patient-details">
                             <div className="detail-group primary">

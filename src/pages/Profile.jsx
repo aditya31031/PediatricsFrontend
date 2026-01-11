@@ -134,16 +134,48 @@ const Profile = () => {
         setChildData({ ...childData, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5000000) { // 5MB limit
+                return toast.error('Image size too large. Max 5MB.');
+            }
+            // Store raw file for upload
+            setChildData(prev => ({ ...prev, photoFile: file }));
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setChildData(prev => ({ ...prev, photo: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const addChild = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('https://pediatricsbackend-4hii.onrender.com/api/auth/add-child', childData, {
-                headers: { 'x-auth-token': token }
+
+            const formData = new FormData();
+            formData.append('name', childData.name);
+            formData.append('age', childData.age);
+            formData.append('gender', childData.gender);
+            formData.append('bloodGroup', childData.bloodGroup);
+            formData.append('weight', childData.weight);
+            formData.append('height', childData.height);
+            if (childData.photoFile) {
+                formData.append('photo', childData.photoFile);
+            }
+
+            const res = await axios.post('https://pediatricsbackend-4hii.onrender.com/api/auth/add-child', formData, {
+                headers: {
+                    'x-auth-token': token
+                }
             });
             updateUser(res.data); // Update AuthContext
             setChildren(res.data.children);
-            setChildData({ name: '', age: '', gender: 'Male', bloodGroup: '', weight: '', height: '' }); // Reset
+            setChildData({ name: '', age: '', gender: 'Male', bloodGroup: '', weight: '', height: '', photo: '', photoFile: null }); // Reset
             setShowAddChild(false);
             toast.success('Child added successfully');
         } catch (err) {
@@ -319,6 +351,29 @@ const Profile = () => {
                                     {showAddChild && (
                                         <form onSubmit={addChild} className="add-child-form fade-in">
                                             <h4 className="form-sub-title">New Child Profile</h4>
+
+                                            {/* Photo Upload */}
+                                            <div className="profile-upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                                <div
+                                                    className="photo-preview"
+                                                    style={{
+                                                        width: '80px', height: '80px', borderRadius: '50%',
+                                                        background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        overflow: 'hidden', border: '2px solid #cbd5e1', marginBottom: '0.5rem'
+                                                    }}
+                                                >
+                                                    {childData.photo ? (
+                                                        <img src={childData.photo} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                    ) : (
+                                                        <User size={32} color="#94a3b8" />
+                                                    )}
+                                                </div>
+                                                <label className="btn-text btn-sm" style={{ cursor: 'pointer', color: '#0ea5e9', fontWeight: '600' }}>
+                                                    Upload Photo
+                                                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                                                </label>
+                                            </div>
+
                                             <div className="child-form-grid">
 
                                                 <div className="form-group-modern">
@@ -414,7 +469,11 @@ const Profile = () => {
                                                 <div key={child._id} className="child-card">
                                                     <div className="child-card-header">
                                                         <div className="child-avatar">
-                                                            {getInitials(child.name)}
+                                                            {child.photo ? (
+                                                                <img src={child.photo} alt={child.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                                            ) : (
+                                                                getInitials(child.name)
+                                                            )}
                                                         </div>
                                                         <div className="child-info-head">
                                                             <h4>{child.name}</h4>
