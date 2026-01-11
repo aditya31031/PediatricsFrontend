@@ -4,22 +4,44 @@
     margin: 1rem 0;
     width: 100%;
     max-width: 450px;
+    transition: transform 0.3s ease;
+}
+
+.health-card-container:hover {
+    transform: translateY(-5px);
 }
 
 .health-card-professional {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    border-radius: 16px;
-    padding: 1.5rem;
+    /* Premium Midnight Blue Gradient */
+    background: linear-gradient(135deg, #020617 0%, #172554 100%);
+    border-radius: 20px;
+    padding: 1.75rem;
     color: white;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    min-height: 240px;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    min-height: 260px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+/* Glassmorphism Shine Effect */
+.health-card-professional::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(115deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 30%,
+            rgba(255, 255, 255, 0.0) 50%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* Header */
@@ -27,19 +49,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     z-index: 2;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .clinic-logo-block {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.85rem;
 }
 
 .logo-icon {
     color: #38bdf8;
-    /* Sky blue */
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
 }
 
 .clinic-text {
@@ -49,69 +73,86 @@
 }
 
 .clinic-name {
-    font-weight: 700;
-    font-size: 0.95rem;
+    font-weight: 800;
+    font-size: 1.1rem;
     letter-spacing: 0.5px;
-    text-transform: uppercase;
+    background: linear-gradient(to right, #ffffff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .clinic-subtitle {
-    font-size: 0.65rem;
-    opacity: 0.7;
+    font-size: 0.7rem;
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
+    font-weight: 600;
 }
 
 .card-chip-visual img {
-    width: 45px;
-    opacity: 0.9;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    width: 50px;
+    opacity: 0.95;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 /* Body */
 .card-pro-body {
     z-index: 2;
+    flex-grow: 1;
 }
 
 .patient-grid {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
     align-items: center;
 }
 
 .patient-photo-placeholder {
-    width: 65px;
-    height: 75px;
-    background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
-    border-radius: 8px;
+    width: 80px;
+    height: 90px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #475569;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #334155;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Profile Photo Gloss */
+.patient-photo-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
 }
 
 .detail-group label {
     display: block;
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: #64748b;
     margin-bottom: 4px;
-    letter-spacing: 0.5px;
-    font-weight: 600;
+    letter-spacing: 1px;
+    font-weight: 700;
 }
 
 .detail-group.primary h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 0.75rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
     letter-spacing: 0.5px;
     color: #fff;
-    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .detail-row-grid {
@@ -121,20 +162,25 @@
 }
 
 .detail-group span {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #f1f5f9;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f8fafc;
 }
 
 .blood-tag {
-    color: #fca5a5 !important;
-    /* Light red */
-    font-weight: 700 !important;
+    color: #f43f5e !important;
+    /* Vibrant Red */
+    background: rgba(244, 63, 94, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 .id-text {
     font-family: 'Courier New', monospace;
     letter-spacing: 1px;
+    color: #fbbf24;
+    /* Amber Gold for ID */
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 /* Footer */
@@ -143,93 +189,76 @@
     justify-content: space-between;
     align-items: flex-end;
     margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 2;
 }
 
-.emergency-contact {
-    display: flex;
-    flex-direction: column;
-}
-
 .emergency-contact label {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
+    color: #94a3b8;
     text-transform: uppercase;
-    opacity: 0.6;
     margin-bottom: 4px;
-    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .ec-value {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    letter-spacing: 0.2px;
+    color: #e2e8f0;
+}
+
+.qr-section {
+    background: white;
+    padding: 4px;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Mobile Adjustments */
 @media (max-width: 480px) {
     .health-card-professional {
-        padding: 1rem;
+        padding: 1.25rem;
         min-height: auto;
     }
 
     .card-pro-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .clinic-name {
-        font-size: 0.8rem;
+        margin-bottom: 1.25rem;
     }
 
     .patient-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.25rem;
         text-align: center;
         justify-items: center;
     }
 
     .patient-photo-placeholder {
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         margin-bottom: 0.5rem;
+        font-size: 2rem;
     }
 
     .detail-group.primary h3 {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
     }
 
     .detail-row-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: 1.25rem;
         width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1rem;
+        border-radius: 12px;
     }
 
-    .detail-group label {
-        font-size: 0.55rem;
-    }
-
-    .detail-group span {
-        font-size: 0.8rem;
-    }
-
-    /* Make ID span full width if needed */
     .detail-row-grid div:last-child {
         grid-column: span 2;
     }
 
     .card-pro-footer {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .emergency-contact {
-        width: 100%;
-    }
-
-    .qr-section {
-        align-self: flex-end;
+        margin-top: 1.25rem;
+        flex-direction: row;
+        align-items: center;
     }
 }
