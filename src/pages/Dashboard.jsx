@@ -386,15 +386,6 @@ const Dashboard = () => {
                                         {app.status === 'completed' ? <span style={{ color: '#16a34a', fontWeight: '500' }}>Visited ✅</span> : <span>{app.status}</span>}
                                     </div>
                                 </div>
-                                <div className="card-footer">
-                                    <button
-                                        className="btn-text btn-sm"
-                                        style={{ width: '100%', textAlign: 'center', color: '#3b82f6' }}
-                                        onClick={() => navigate('/#book-appointment')}
-                                    >
-                                        Book Again
-                                    </button>
-                                </div>
                             </div>
                         ))
                     }
