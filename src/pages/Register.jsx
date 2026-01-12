@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, ArrowRight, Stethoscope, Activity, Heart, Phone, ArrowLeft } from 'lucide-react';
 import './Auth.css';
+import Footer from '../components/Footer';
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
@@ -218,6 +219,7 @@ const Register = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };

@@ -133,6 +133,8 @@
 .login-form-side {
     flex: 1;
     display: flex;
+    flex-direction: column;
+    /* Allow stacking of Form + Footer */
     align-items: center;
     justify-content: center;
     padding: 2rem;
@@ -380,9 +382,36 @@
 }
 
 /* NEW ANIMATION REQUESTED */
-.fade-in-up1 {
-    animation: fadeInUp1 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+/* AUTH FOOTER */
+.auth-footer {
+    width: 100%;
+    margin-top: 2rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    animation: fadeInUp 1s ease-out forwards;
 }
+
+.auth-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.auth-footer a {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    color: var(--primary-color);
+}
+
 
 @keyframes fadeInUp1 {
     from {

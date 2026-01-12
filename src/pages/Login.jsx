@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, Stethoscope, Activity } from 'lucide-react';
 import './Auth.css';
+import Footer from '../components/Footer';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -108,8 +109,10 @@ const Login = () => {
                     <div className="attractive-footer">
                         <p>New here? <Link to="/register">Create an account</Link></p>
                     </div>
+
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };
