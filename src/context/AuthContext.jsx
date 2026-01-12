@@ -8,6 +8,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Production URL (Render)
+    const BASE_URL = 'https://pediatricsbackend-4hii.onrender.com';
+
     useEffect(() => {
         const loadUser = async () => {
             const token = localStorage.getItem('token');
@@ -19,7 +22,6 @@ export const AuthProvider = ({ children }) => {
 
                     // Then verify with server for fresh data
                     // Add timestamp to prevent caching
-                    const BASE_URL = 'http://localhost:5000'; // Development
                     const res = await fetch(`${BASE_URL}/api/auth/me?t=${new Date().getTime()}`, {
                         headers: { 'x-auth-token': token }
                     });
@@ -54,7 +56,6 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const BASE_URL = 'http://localhost:5000';
             const res = await fetch(`${BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,7 +76,6 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, phone, otp) => {
         try {
-            const BASE_URL = 'http://localhost:5000';
             const res = await fetch(`${BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -102,7 +102,6 @@ export const AuthProvider = ({ children }) => {
 
     const sendOtp = async (phone) => {
         try {
-            const BASE_URL = 'http://localhost:5000';
             const res = await fetch(`${BASE_URL}/api/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
