@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, User, Clock, CheckCircle, Edit, Trash2 } from 'lucide-react';
+import { Calendar, User, Clock, CheckCircle, Edit, Trash2, Users, BarChart2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import './AdminDashboard.css';
 
 import { io } from 'socket.io-client';
@@ -10,17 +11,21 @@ import { io } from 'socket.io-client';
 const AdminDashboard = () => {
     const { user, loading } = useAuth();
     const [appointments, setAppointments] = useState([]);
+    const [stats, setStats] = useState({ totalPatients: 0, trendData: [], reasonData: [] });
     const [isLoading, setIsLoading] = useState(true);
+    const [filter, setFilter] = useState('Month'); // Week, Month, Year
     const navigate = useNavigate();
+
+    // Chart Colors
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
     useEffect(() => {
         if (!loading) {
             if (!user || user.role !== 'admin') {
                 navigate('/login');
             } else {
-                fetchAllAppointments();
+                fetchInitialData();
 
-                // Initialize Socket.io connection
                 // Initialize Socket.io connection
                 const socket = io(import.meta.env.VITE_API_URL || 'https://pediatricsbackend-4hii.onrender.com');
 
@@ -36,7 +41,8 @@ const AdminDashboard = () => {
                     } else {
                         toast.success('Schedule Updated');
                     }
-                    fetchAllAppointments();
+                    fetchAllAppointments(); // Refresh list
+                    fetchStats(); // Refresh stats
                 });
 
                 // Cleanup on unmount
@@ -46,6 +52,12 @@ const AdminDashboard = () => {
             }
         }
     }, [user, loading, navigate]);
+
+    const fetchInitialData = async () => {
+        setIsLoading(true);
+        await Promise.all([fetchAllAppointments(), fetchStats()]);
+        setIsLoading(false);
+    };
 
     const fetchAllAppointments = async () => {
         try {
@@ -60,30 +72,50 @@ const AdminDashboard = () => {
                 toast.error('Failed to load appointments');
             }
         } catch (err) {
-            toast.error('Server error');
-        } finally {
-            setIsLoading(false);
+            console.error(err);
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'confirmed': return 'bg-green-100 text-green-700'; // Using vanilla classes defined in CSS
-            case 'cancelled': return 'bg-red-100 text-red-700';
-            default: return 'bg-gray-100 text-gray-700';
+    const fetchStats = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/admin/stats', {
+                headers: { 'x-auth-token': token }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setStats(data);
+            }
+        } catch (err) {
+            console.error("Stats fetch error:", err);
+            toast.error('Failed to load analytics');
         }
+    };
+
+    // Filter Logic for Graph
+    const getFilteredTrendData = () => {
+        const { trendData } = stats;
+        if (!trendData || trendData.length === 0) return [];
+
+        const now = new Date();
+        let startDate = new Date();
+
+        if (filter === 'Week') {
+            startDate.setDate(now.getDate() - 7);
+        } else if (filter === 'Month') {
+            startDate.setMonth(now.getMonth() - 1);
+        } else if (filter === 'Year') {
+            startDate.setFullYear(now.getFullYear() - 1);
+        }
+
+        return trendData.filter(item => new Date(item.date) >= startDate);
     };
 
     // Modal States
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showModifyModal, setShowModifyModal] = useState(false);
-
     const [selectedAppt, setSelectedAppt] = useState(null);
-
-    // Cancel Fields
     const [cancelReason, setCancelReason] = useState('');
-
-    // Modify Fields
     const [modifyDate, setModifyDate] = useState('');
     const [modifyTime, setModifyTime] = useState('');
     const [modifyMessage, setModifyMessage] = useState('');
@@ -115,6 +147,7 @@ const AdminDashboard = () => {
                 toast.success('Appointment cancelled & notification sent');
                 setShowCancelModal(false);
                 fetchAllAppointments();
+                fetchStats();
             } else {
                 toast.error('Failed to cancel');
             }
@@ -144,6 +177,7 @@ const AdminDashboard = () => {
                 toast.success('Appointment rescheduled & notification sent');
                 setShowModifyModal(false);
                 fetchAllAppointments();
+                fetchStats();
             } else {
                 toast.error('Failed to reschedule');
             }
@@ -154,23 +188,105 @@ const AdminDashboard = () => {
 
     if (loading || isLoading) return <div className="loading-screen">Loading Admin Panel...</div>;
 
+    const filteredData = getFilteredTrendData();
+
     return (
         <div className="admin-dashboard container">
             <div className="admin-header">
                 <div className="flex-row-center">
                     <h2>Doctor's Dashboard</h2>
-                    <button onClick={fetchAllAppointments} className="btn-refresh" title="Refresh Data">
+                    <button onClick={fetchInitialData} className="btn-refresh" title="Refresh Data">
                         🔄
                     </button>
                 </div>
-                <div className="admin-stats">
-                    <div className="stat-card">
+            </div>
+
+            {/* HEADLINE STATS */}
+            <div className="admin-stats-grid">
+                <div className="stat-card primary">
+                    <div className="stat-icon-bg"><Users size={24} /></div>
+                    <div>
+                        <h3>{stats.totalPatients}</h3>
+                        <p>Total Patients</p>
+                    </div>
+                </div>
+                <div className="stat-card success">
+                    <div className="stat-icon-bg"><CheckCircle size={24} /></div>
+                    <div>
+                        <h3>{appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length || 0}</h3>
+                        <p>Today's Patients</p>
+                    </div>
+                </div>
+                <div className="stat-card info">
+                    <div className="stat-icon-bg"><Calendar size={24} /></div>
+                    <div>
                         <h3>{appointments.length}</h3>
                         <p>Total Bookings</p>
                     </div>
-                    <div className="stat-card">
-                        <h3>{appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length || 0}</h3>
-                        <p>Today's Patients</p>
+                </div>
+            </div>
+
+            {/* ANALYTICS SECTION */}
+            <div className="analytics-section">
+
+                {/* TREND CHART */}
+                <div className="chart-card">
+                    <div className="chart-header">
+                        <h3><BarChart2 size={18} /> Visit Trends</h3>
+                        <div className="chart-filters">
+                            {['Week', 'Month', 'Year'].map(f => (
+                                <button
+                                    key={f}
+                                    className={`filter-btn ${filter === f ? 'active' : ''}`}
+                                    onClick={() => setFilter(f)}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{ width: '100%', height: 250 }}>
+                        <ResponsiveContainer>
+                            <LineChart data={filteredData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} />
+                                <YAxis allowDecimals={false} />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                                    formatter={(value) => [value, 'Visits']}
+                                    labelFormatter={(label) => new Date(label).toDateString()}
+                                />
+                                <Line type="monotone" dataKey="visits" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* REASONS PIE CHART */}
+                <div className="chart-card">
+                    <div className="chart-header">
+                        <h3>Visit Reasons</h3>
+                    </div>
+                    <div style={{ width: '100%', height: 250 }}>
+                        <ResponsiveContainer>
+                            <PieChart>
+                                <Pie
+                                    data={stats.reasonData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {stats.reasonData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend layout="vertical" verticalAlign="middle" align="right" />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
             </div>

@@ -19,7 +19,8 @@ export const AuthProvider = ({ children }) => {
 
                     // Then verify with server for fresh data
                     // Add timestamp to prevent caching
-                    const res = await fetch(`https://pediatricsbackend-4hii.onrender.com/api/auth/me?t=${new Date().getTime()}`, {
+                    const BASE_URL = 'http://localhost:5000'; // Development
+                    const res = await fetch(`${BASE_URL}/api/auth/me?t=${new Date().getTime()}`, {
                         headers: { 'x-auth-token': token }
                     });
 
@@ -53,7 +54,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/auth/login', {
+            const BASE_URL = 'http://localhost:5000';
+            const res = await fetch(`${BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -71,12 +73,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, password, phone) => {
+    const register = async (name, email, password, phone, otp) => {
         try {
-            const res = await fetch('https://pediatricsbackend-4hii.onrender.com/api/auth/register', {
+            const BASE_URL = 'http://localhost:5000';
+            const res = await fetch(`${BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, phone }),
+                body: JSON.stringify({ name, email, password, phone, otp }),
             });
 
             const data = await res.json();
@@ -97,13 +100,29 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const sendOtp = async (phone) => {
+        try {
+            const BASE_URL = 'http://localhost:5000';
+            const res = await fetch(`${BASE_URL}/api/auth/send-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.msg || 'Failed to send OTP');
+            return { success: true, message: data.msg };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    };
+
     const updateUser = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading, sendOtp }}>
             {!loading && children}
         </AuthContext.Provider>
     );

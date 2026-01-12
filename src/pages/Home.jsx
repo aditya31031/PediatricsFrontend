@@ -15,8 +15,8 @@ const testimonials = [
         verified: true,
         date: "4 months ago",
         tags: ["Treatment satisfaction"],
-        text: "Not giving proper guidance from front end employee,i went client as my son having 104 degree fever but without checking kid temperature doctor given medicine, after asking y temperature not checked then they are given thermameter. Disappointed with the doctor he is not giving time to explain the health condition",
-        recommend: false
+        text: "I recommend the doctor Happy with: Treatment satisfaction Not giving proper guidance from front end employee,i went client as my son having 104 degree fever but without checking kid temperature doctor given medicine, after asking y temperature not checked then they are given thermameter Disappointed with the doctor he is not giving time to explain the health condition",
+        recommend: true
     },
     {
         name: "Naveen S Murthy", verified: true, date: "4 years ago", tags: ["Doctor friendliness", "Explanation of the health issue", "Treatment satisfaction", "Value for money", "Wait time"],
@@ -29,9 +29,9 @@ const testimonials = [
         recommend: true
     },
     {
-        name: "Verified Patient", verified: true, date: "8 years ago", tags: ["Explanation of the health issue (Hoped for better)"],
-        text: "I had a really bad experience on my first visit. Firstly the receptionist he is not at all professional n impolite... Secondly the Doctor came in to look at my daughter problem, I felt he is little pleasant and unfriendly for kiddos might be because he is in hurry... Finally a shrink to pocket, they charged me 900rs for 5 min.",
-        recommend: false
+        name: "Verified Patient ", verified: true, date: "2 years ago", tags: ["Explanation of the health issue (Hoped for better)"],
+        text: "He is an amazing doctor and is able to provide medication aptly for the kids. He advices antibiotics only after the basic medication doesn't reduce the problem. The appointments are always full due to people wanting consultation only from him. Hence the wait time is more only when you don't have appointments, which is almost always. But the doctor provides consultation for all the walk-in patients even if it's late in the afternoon/night, if you are at his clinic. His consultation fees are higher for the walk-in patients since it would be outside the visiting hours, but he donates the additional amount collected by them to an orphanage. Kudos to him for his dedication towards kids and, for his initiative in providing to the orphanage. Even though his staff are older people, they are nicer and help in maintaining good hygiene with that many people around.",
+        recommend: true
     },
     {
         name: "Ganapati V. S.", verified: true, date: "8 years ago", tags: ["Explanation of the health issue", "Treatment satisfaction", "Doctor friendliness", "Value for money"],
