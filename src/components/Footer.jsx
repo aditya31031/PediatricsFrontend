@@ -13,7 +13,7 @@ const Footer = () => {
                 <div className="footer-section">
                     <h4>Contact & Location</h4>
                     <p><Phone size={16} /> +91 98765 43210</p>
-                    <p><MapPin size={16} /> HSR Layout, Bangalore</p>
+                    <p><MapPin size={16} /> Sahakaranagar, Bangalore</p>
                 </div>
                 <div className="footer-section">
                     <h4>Clinic Hours</h4>

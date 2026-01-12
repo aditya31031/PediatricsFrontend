@@ -224,20 +224,19 @@ const Home = () => {
                     <div className="contact-right">
                         <div className="location-card">
                             <h2>Visit Us</h2>
-                            <p className="location-desc">Easily accessible in the heart of HSR Layout.</p>
+                            <p className="location-desc">Easily accessible in the heart of Sahakaranagar, Bangalore.</p>
 
                             <div className="address-details">
                                 <div className="detail-item">
                                     <div className="icon-box"><ShieldCheck size={18} /></div>
                                     <div>
                                         <strong>Sai Manohar Children's Clinic</strong>
-                                        <p>HSR Layout, Bangalore</p>
+                                        <p>Sahakaranagar, Bangalore</p>
                                     </div>
                                 </div>
                             </div>
-
                             <a
-                                href="https://www.google.com/maps/search/?api=1&query=Sai+Manohar+Children's+Clinic+HSR+Layout"
+                                href="https://maps.app.goo.gl/Bkk97q9DW7213kNCA"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-primary btn-map"

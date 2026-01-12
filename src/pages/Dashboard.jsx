@@ -424,7 +424,7 @@ const Dashboard = () => {
                                         <div className="card-actions">
                                             <button
                                                 className="btn-modern btn-primary-soft"
-                                                onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Pediatric+CMS+Clinic', '_blank')}
+                                                onClick={() => window.open('https://maps.app.goo.gl/Bkk97q9DW7213kNCA', '_blank')}
                                             >
                                                 <MapPin size={16} /> Get Directions
                                             </button>
