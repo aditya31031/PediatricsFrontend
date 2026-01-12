@@ -17,6 +17,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import { useAuth } from './context/AuthContext'; // Import useAuth
 import { Navigate } from 'react-router-dom';
+import MainLayout from './components/MainLayout';
+import ScrollToTop from './components/ScrollToTop';
 
 // Wrapper for Patient-only routes (redirects Admin/Staff to their dashboards)
 const PatientRoute = ({ children }) => {
@@ -54,64 +56,61 @@ const ReceptionistRoute = ({ children }) => {
   return children;
 };
 
-import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <ScrollToTop />
-        <div className="app-container">
-          <Toaster position="top-center" />
-          <Header />
-          <main className="main-content">
-            <Routes>
-              {/* Wrap Patient Routes */}
-              <Route path="/" element={
-                <PatientRoute>
-                  <Home />
-                </PatientRoute>
-              } />
+        <Toaster position="top-center" />
 
-              <Route path="/dashboard" element={
-                <PatientRoute>
-                  <Dashboard />
-                </PatientRoute>
-              } />
+        <Routes>
+          {/* Main Website Layout (Header + Footer) */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={
+              <PatientRoute>
+                <Home />
+              </PatientRoute>
+            } />
 
-              <Route path="/profile" element={
-                <PatientRoute>
-                  <Profile />
-                </PatientRoute>
-              } />
+            <Route path="/dashboard" element={
+              <PatientRoute>
+                <Dashboard />
+              </PatientRoute>
+            } />
 
-              <Route path="/notifications" element={
-                <PatientRoute>
-                  <Notifications />
-                </PatientRoute>
-              } />
+            <Route path="/profile" element={
+              <PatientRoute>
+                <Profile />
+              </PatientRoute>
+            } />
 
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
+            <Route path="/notifications" element={
+              <PatientRoute>
+                <Notifications />
+              </PatientRoute>
+            } />
+          </Route>
 
-              {/* Wrap Admin Route */}
-              <Route path="/admin" element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              } />
+          {/* Auth Pages (Standalone - No Header/Footer) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
 
-              <Route path="/reception" element={
-                <ReceptionistRoute>
-                  <ReceptionistDashboard />
-                </ReceptionistRoute>
-              } />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+          {/* Admin & Reception Dashboards (Standalone) */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } />
+
+          <Route path="/reception" element={
+            <ReceptionistRoute>
+              <ReceptionistDashboard />
+            </ReceptionistRoute>
+          } />
+        </Routes>
       </Router>
     </AuthProvider>
   );

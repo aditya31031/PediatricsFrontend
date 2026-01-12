@@ -81,7 +81,7 @@ const Register = () => {
 
             {/* Right Side: Form */}
             <div className="login-form-side">
-                <div className="login-form-container fade-in-up">
+                <div className="login-form-container fade-in-up1">
                     <div className="mobile-header">
                         <div className="brand-logo-mobile">
                             <Stethoscope size={24} color="white" />

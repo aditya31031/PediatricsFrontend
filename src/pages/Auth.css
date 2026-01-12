@@ -162,6 +162,10 @@
     /* Premium shadow */
     position: relative;
     z-index: 10;
+
+    /* FIX: Force vertical layout */
+    display: flex;
+    flex-direction: column;
 }
 
 .mobile-header {
@@ -375,6 +379,27 @@
     }
 }
 
+/* NEW ANIMATION REQUESTED */
+.fade-in-up1 {
+    animation: fadeInUp1 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeInUp1 {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        /* Subtle up movement */
+        filter: blur(4px);
+        /* Slight blur for smoothness */
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
 /* Utilities */
 .mt-6 {
     margin-top: 1.5rem;
@@ -419,7 +444,19 @@
     .login-image-side {
         height: auto;
         min-height: 100vh;
-        max-width: 55%;
+        width: 50%;
+        /* Explicit width */
+        flex: 0 0 50%;
+        /* Don't grow/shrink */
+        max-width: 50%;
+    }
+
+    .login-form-side {
+        width: 50%;
+        flex: 0 0 50%;
+        overflow-y: auto;
+        /* Allow scrolling if height is small */
+        max-height: 100vh;
     }
 
     .login-image-overlay {
